@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -19,14 +21,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AlertDialogLayout;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -95,7 +93,24 @@ public class EditActivity extends AppCompatActivity {
         Spinner mspinner = findViewById(R.id.spinner);
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         List<String> tagList = Arrays.asList(sharedPreferences.getString(String_TAGLIST, null).split(";")); //获取tags
-        ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, tagList.subList(1, tagList.size()));
+        ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, tagList.subList(1, tagList.size())){
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView textView = (TextView) view;
+                textView.setGravity(Gravity.CENTER); // 设置文本靠右对齐
+                return view;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view;
+                textView.setGravity(Gravity.END); // 设置文本靠右对齐
+                return view;
+            }
+
+        };
         myAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         mspinner.setAdapter(myAdapter);
         mspinner.setSelection(old_Tag-1);
