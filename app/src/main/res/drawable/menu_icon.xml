@@ -1,0 +1,28 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 第一行：圆点和线 -->
+    <path
+        android:pathData="M3,6h2v2h-2z ,M7,6h14v2H7z"
+        android:fillColor="#000000" />
+
+    <!-- 第二行：圆点和线 -->
+    <path
+        android:pathData="M3,12h2v2h-2z ,M7,12h14v2H7z"
+        android:fillColor="#000000" />
+
+    <!-- 第三行：圆点和线 -->
+    <path
+        android:pathData="M3,18h2v2h-2z, M7,18h14v2H7z"
+        android:fillColor="#000000" />
+</vector>
+
+<!--M3,4h1v2h-1z M6,4h14v2H6z
+
+第一个小矩形从(3,4)开始，宽度为1，高度为2。
+第二个大矩形从(6,4)开始，宽度为14，高度为2。
+两个矩形之间保持了1个单位的间距。
+    -->

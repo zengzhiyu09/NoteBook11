@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--每条note的形状-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--    shadow?-->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#A09F95"/>
+            <corners android:radius="6dp"/>
+        </shape>
+    </item>
+<!--    影子？原来真是影子。。-->
+    <item android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/RiceWhite"/>
+            <corners android:radius="6dp"/>
+        </shape>
+
+    </item>
+<!--    ???     不需要attr和style 不搞这么工程了 哦style高夜间模式要用到。。。好吧不用夜间了-->
+
+</layer-list>

@@ -1,0 +1,24 @@
+<!-- res/drawable/bottom_right_border_rectangle.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 先定义一个全边框的矩形 -->
+    <item>
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="2dp"
+                android:color="@color/black"/>
+            <solid android:color="#00000000"/> <!-- 透明背景 -->
+        </shape>
+    </item>
+
+    <!-- 使用 inset 遮盖不需要的边框 -->
+    <item>
+        <inset
+
+            android:insetBottom="1dp">
+            <shape android:shape="rectangle">
+                <solid android:color="@color/RiceWhite"/> <!-- 透明背景 -->
+            </shape>
+        </inset>
+    </item>
+
+</layer-list>

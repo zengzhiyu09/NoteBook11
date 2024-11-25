@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="lvBackground" format="color"/>
+    <attr name="tvBackground" format="color"/>
+    <attr name="menuSearch" format="string"/>
+    <attr name="tvMainColor" format="color">black</attr>
+
+
+</resources>

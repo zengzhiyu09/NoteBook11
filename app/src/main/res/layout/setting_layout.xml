@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_setting"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:title="设置"
+        android:elevation="4dp"
+        android:background="@drawable/border"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text="选择排序方式"
+            android:textSize="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/buttonOrder1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:text="按编辑日期"
+                android:layout_gravity="center"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="4sp"
+                app:autoSizeMaxTextSize="18sp"
+                android:maxLines="1"/>
+
+
+            <Button
+                android:id="@+id/buttonOrder2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:text="按创建日期"
+                android:layout_gravity="center"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="4sp"
+                app:autoSizeMaxTextSize="18sp"
+                android:maxLines="1"/>
+
+
+        </LinearLayout>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black"
+            android:alpha="0.2"/>
+        <ListView
+            android:id="@+id/lv_tag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black"
+            android:alpha="0.2"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="44dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/baseline_add_24"/>
+            <TextView
+                android:id="@+id/add_tag"
+                android:clickable="true"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="添加新分类"
+                android:gravity="center_vertical"
+                android:textColor="@color/black"
+                android:textSize="24dp"
+                android:layout_marginStart="12dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

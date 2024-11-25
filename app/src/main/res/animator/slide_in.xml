@@ -1,0 +1,7 @@
+<!-- res/animator/slide_in_from_left.xml -->
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <objectAnimator
+        android:duration="2000"
+        android:fromXDelta="-100%"
+        android:toXDelta="0" />
+</set>
