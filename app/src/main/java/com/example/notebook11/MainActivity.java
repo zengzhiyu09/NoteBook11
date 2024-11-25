@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,8 +46,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import android.animation.Animator;
-import android.animation.AnimatorInflater;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -608,6 +607,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 del.animate().translationX(length).setDuration(300).start();
             }
         }
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            // 用户按下返回键
+            finishAffinity();
+            return true; // 表示事件已处理
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 }
