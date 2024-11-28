@@ -23,7 +23,7 @@ public class NoteDatabase extends SQLiteOpenHelper {
                     + ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + TITLE +" TEXT,"
                     + CONTENT+ " TEXT NOT NULL,"
-                    + TIME + " TEXT NOT NULL,"
+                    + TIME + " TEXT NOT NULL UNIQUE,"
                     + TYPE + " INTERGER DEFAULT 1)");
     }//ID从1开始自增
 

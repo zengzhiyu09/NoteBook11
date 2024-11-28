@@ -2,11 +2,20 @@ package com.example.notebook11;
 
 import static com.example.notebook11.MainActivity.String_TAGLIST;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.AlarmManager;
+import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Build;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -20,6 +29,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +38,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -49,7 +60,11 @@ public class EditActivity extends AppCompatActivity {
     private long id = 0;
     private  int openMode = 0;//0创建,1修改，2删除，3也是修改，4也是创建，-1什么都不做
     private int tag = 1;//??? 在后面等着呢
+    private static int count = 1;
 
+    private Calendar notificationTime;
+    private static final int NOTIFICATION_ID = 1;
+    private static final String CHANNEL_ID = "note_channel_id";
 
 
     @Override
@@ -60,7 +75,8 @@ public class EditActivity extends AppCompatActivity {
         editText = findViewById(R.id.edit1);
         editTitle = findViewById(R.id.title_Edit);
 
-
+        // 初始化 notificationTime
+        notificationTime = Calendar.getInstance();
         //处理从主页点击的 edit念头
         Intent intent = getIntent();
         openMode = intent.getIntExtra("mode", 0);
@@ -98,7 +114,7 @@ public class EditActivity extends AppCompatActivity {
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
                 TextView textView = (TextView) view;
-                textView.setGravity(Gravity.CENTER); // 设置文本靠右对齐
+                textView.setGravity(Gravity.CENTER); // 设置文本居中
                 return view;
             }
 
@@ -236,7 +252,94 @@ public class EditActivity extends AppCompatActivity {
                             finish();
                         }//这个长串是谁想出来的真是牛人 留一条让你对比学习一下lambda语句 应该是拿来处理接口的
                     }).setNegativeButton(android.R.string.no, (dialogInterface, i) -> dialogInterface.dismiss()).create().show();
+        }else if(item.getItemId() == R.id.alarm ){
+            new AlertDialog.Builder(this).setMessage("给这条笔记设置提醒？")
+                            .setPositiveButton(android.R.string.yes,new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                    showDateTimePicker();
+                                }
+                            }).setNegativeButton(android.R.string.cancel,(dialogInterface, i) -> dialogInterface.dismiss()).create().show();
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showDateTimePicker() {
+        // 显示日期选择器
+        new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            notificationTime.set(Calendar.YEAR, year);
+            notificationTime.set(Calendar.MONTH, month);
+            notificationTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            // 显示时间选择器
+            showTimePicker();
+        }, notificationTime.get(Calendar.YEAR), notificationTime.get(Calendar.MONTH), notificationTime.get(Calendar.DAY_OF_MONTH)).show();
+    }
+    private void showTimePicker() {
+        new TimePickerDialog(this, (view, hourOfDay, minute) -> {
+            notificationTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            notificationTime.set(Calendar.MINUTE, minute);
+            notificationTime.set(Calendar.SECOND, 0);
+            notificationTime.set(Calendar.MILLISECOND, 0);
+
+            // 显示确认对话框
+            new AlertDialog.Builder(EditActivity.this)
+                    .setTitle("确认时间")
+                    .setMessage("您确定要设置通知时间为 " + getFormattedTime(notificationTime) + " 吗？")
+                    .setPositiveButton("确认", (dialog, which) -> {
+                        // 用户确认，安排通知
+                        sendNotificationAtScheduledTime();
+                    })
+                    .setNegativeButton("取消", (dialog, which) -> {
+                        // 用户取消，重新选择时间
+                        showTimePicker();
+                    })
+                    .show();
+        }, notificationTime.get(Calendar.HOUR_OF_DAY), notificationTime.get(Calendar.MINUTE), true).show();
+    }
+    private String getFormattedTime(Calendar calendar) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        return simpleDateFormat.format(calendar.getTime());
+        //return String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Note Channel";
+            String description = "Channel for note reminders";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // 禁用震动
+            channel.enableVibration(false);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    @SuppressLint("ScheduleExactAlarm")
+    private void sendNotificationAtScheduledTime() {
+        createNotificationChannel();
+
+        Intent intent = new Intent(this, NoteReceiver.class);
+        intent.putExtra("title", editTitle.getText().toString());
+        intent.putExtra("content", editText.getText().toString());
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    notificationTime.getTimeInMillis(),
+                    pendingIntent
+            );
+        }
     }
 }

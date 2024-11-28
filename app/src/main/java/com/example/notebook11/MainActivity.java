@@ -1,6 +1,5 @@
 package com.example.notebook11;
 
-import static android.text.TextUtils.split;
 import static android.view.View.GONE;
 
 import android.app.Activity;
@@ -55,9 +54,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
-    private NoteDatabase dbHelper;//也不知道和dbHandler有什么区别
+    private NoteDatabase dbHelper;//也不知道和dbHandler有什么区别 花花名字
     NoteAdapter adapter,tmpAdapter;
-    private  Context thisContext = this;
+    private final Context thisContext = this;
 
     final  String TAG = "tag";
     public static final String String_TAGLIST = "tagList";
@@ -89,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     SharedPreferences.Editor editor;
 
     private int tag = 1;
+    // 记录上次点击时间
+    private long lastClickTime = 0;
 
 
     @Override
@@ -277,6 +278,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         lv_tag = customView.findViewById(R.id.lv_tag);//展示已有标签
         add_tag = customView.findViewById(R.id.add_tag);//添加标签
 
+
+        toolbarSET.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 获取当前系统时间
+                long currentTime = System.currentTimeMillis();
+
+                // 判断两次点击间隔是否小于300ms
+                if (currentTime - lastClickTime < 300) {
+                    // 这里是双击事件的处理逻辑
+                    onDoubleClick(view);
+                } else {
+                    Toast.makeText(thisContext, "双击进入文件备份管理", Toast.LENGTH_SHORT).show();
+                    // 如果不是双击，则更新lastClickTime
+                    lastClickTime = currentTime;
+                }
+            }
+        });
+
         refreshTagList();
 
         add_tag.setOnClickListener(view -> {
@@ -335,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }else{
                     lv.setAdapter(adapter);
                     refreshListView();
-                    toolbar.setTitle("Notebook11");
+                    toolbar.setTitle("NoteBook11");
                     findViewById(R.id.main).post(new Runnable() {
                         @Override
                         public void run() {
@@ -574,8 +594,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             if(ad == adapter) {
                                 dbHelper = new NoteDatabase(thisContext);
                                 SQLiteDatabase db = dbHelper.getWritableDatabase();//== db.open 不用包装好的因为没有写这个删除全部 一个一个找也太慢了
-                                db.delete("note_table", null, null);
-                                db.execSQL("update sqlite_sequence set seq=0 where name='note_table'");
+                                //db.delete("note_table", null, null);
+                                db.execSQL("DROP TABLE IF EXISTS note_table");
+                                db.execSQL("CREATE TABLE " + NoteDatabase.TABLE_NAME
+                                        +"("
+                                        + NoteDatabase.ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                                        + NoteDatabase.TITLE +" TEXT,"
+                                        + NoteDatabase.CONTENT+ " TEXT NOT NULL,"
+                                        + NoteDatabase.TIME + " TEXT NOT NULL UNIQUE,"
+                                        + NoteDatabase.TYPE + " INTERGER DEFAULT 1)");
+                                //db.execSQL("update sqlite_sequence set seq=0 where name='note_table'");
                                 db.close();
                                 refreshListView();
                             } else if (ad == tmpAdapter) {
@@ -616,6 +644,51 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             return true; // 表示事件已处理
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    // 双击事件处理方法
+    private void onDoubleClick(View v) {
+        // 实现双击后的操作
+       new AlertDialog.Builder(this).setMessage("恢复或备份文件")
+               .setPositiveButton("备份", new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialogInterface, int i) {
+                       new AlertDialog.Builder(thisContext).setMessage("此次备份会覆盖之前的备份文件\n确定要备份吗?")
+                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialogInterface, int i) {
+                                       BackupRestoreManager manager = new BackupRestoreManager(thisContext);
+                                       manager.backupNotes();
+                                   }
+                               }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialogInterface, int i) {
+                                       dialogInterface.dismiss();
+                                   }
+                               }).create().show();
+
+                   }
+               }).setNegativeButton("恢复", new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialogInterface, int i) {
+                       new AlertDialog.Builder(thisContext).setMessage("将上一个备份记录加入当前笔记列表？")
+                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialogInterface, int i) {
+                                       BackupRestoreManager manager = new BackupRestoreManager(thisContext);
+                                       manager.restoreNotes();
+                                       lv.setAdapter(adapter);
+                                       refreshListView();
+                                   }
+                               }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialogInterface, int i) {
+                                       dialogInterface.dismiss();
+                                   }
+                               }).create().show();
+
+                   }
+               }).create().show();
     }
 
 }

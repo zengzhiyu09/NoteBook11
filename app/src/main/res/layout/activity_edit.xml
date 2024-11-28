@@ -17,7 +17,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="0dp"
-        app:title="New Note">
+        app:title=" ">
 
         <Spinner
             android:id="@+id/spinner"
