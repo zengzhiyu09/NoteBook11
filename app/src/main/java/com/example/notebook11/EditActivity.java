@@ -23,8 +23,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -65,7 +67,7 @@ public class EditActivity extends AppCompatActivity {
     private Calendar notificationTime;
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "note_channel_id";
-
+    private Button btnAddTodo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,7 @@ public class EditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit);
         editText = findViewById(R.id.edit1);
         editTitle = findViewById(R.id.title_Edit);
-
+        btnAddTodo = findViewById(R.id.btn_add_todo);
         // 初始化 notificationTime
         notificationTime = Calendar.getInstance();
         //处理从主页点击的 edit念头
@@ -91,14 +93,18 @@ public class EditActivity extends AppCompatActivity {
             editTitle.setText(old_title);
             editText.setSelection(old_content.length());//把光标位置移到末尾
         }
-
+        btnAddTodo.setOnClickListener(v -> {
+            // 插入待办事项
+            String todoText = "\n[ ] 待办事项";
+            editText.append(todoText);
+        });
 
         toolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);//?toolbar代替actionbar
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {//按下返回键
                 @Override
                 public void onClick(View view) {
                     autoSetMessage();
@@ -106,6 +112,19 @@ public class EditActivity extends AppCompatActivity {
                 }
             });
         }
+        // 监听 EditText 的焦点变化 新增改变toolbar
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                // 当 EditText 获得焦点时，修改 Toolbar
+                toolbar.getMenu().clear();  // 清除原有菜单
+                toolbar.inflateMenu(R.menu.edit_active_menu);  // 加载新的菜单资源
+            } else {
+                // 当 EditText 失去焦点时，恢复 Toolbar
+                toolbar.getMenu().clear();
+                toolbar.inflateMenu(R.menu.edit_menu);
+            }
+        });
+
         Spinner mspinner = findViewById(R.id.spinner);
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         List<String> tagList = Arrays.asList(sharedPreferences.getString(String_TAGLIST, null).split(";")); //获取tags
@@ -143,6 +162,7 @@ public class EditActivity extends AppCompatActivity {
             }
         });
     }
+    //所有需要显示的东西都放在onCreate函数里
 
 
 //好你个gpt写的什么东西
@@ -261,6 +281,14 @@ public class EditActivity extends AppCompatActivity {
                                     showDateTimePicker();
                                 }
                             }).setNegativeButton(android.R.string.cancel,(dialogInterface, i) -> dialogInterface.dismiss()).create().show();
+
+        } else if (item.getItemId() == R.id.action_save) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            // 隐藏键盘
+            if (imm != null && editText != null) {
+                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+                editText.clearFocus();
+            }
 
         }
         return super.onOptionsItemSelected(item);
